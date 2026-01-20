@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cv-inference-config
+  namespace: mlops-cv
+data:
+  MLFLOW_TRACKING_URI: "http://mlflow.default.svc.cluster.local:5000" # change to your MLflow
+  MODEL_NAME: "cifar10_cnn"
+  MODEL_STAGE: "Staging"
+  INFERENCE_LOG_PATH: "/data/inference_logs.jsonl"

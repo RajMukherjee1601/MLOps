@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cv-inference
+  namespace: mlops-cv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cv-inference
+  template:
+    metadata:
+      labels:
+        app: cv-inference
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/YOUR_USER/cv-inference:latest # <-- change me
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: cv-inference-config
+          volumeMounts:
+            - name: inference-logs
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      volumes:
+        - name: inference-logs
+          emptyDir: {}

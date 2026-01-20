@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cv-inference-rules
+  namespace: mlops-cv
+spec:
+  groups:
+    - name: cv-inference
+      rules:
+        - alert: CVInferenceHighErrorRate
+          expr: |
+            sum(rate(inference_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(inference_requests_total[5m]))
+            > 0.05
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High 5xx error rate for cv-inference"
+            description: "5xx error ratio > 5% over the last 5 minutes."
